@@ -19,22 +19,31 @@ The **Wall Street AI Agent** is a full-stack AI system that bridges the gap betw
 The project employs a robust ETL (Extract, Transform, Load) and Query architecture. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which uses `BeautifulSoup` and `Markdownify` to cleanly extract intricate financial tables from raw HTML, completely preserving the tabular structure before it enters the embedding model.
 
 ```mermaid
-graph TD
-    A[SEC EDGAR Database] -->|Download 10-K/10-Q HTML| B(src/edgar_to_azure.py)
-    B -->|Upload Core 'primary-document.html'| C[(Azure Blob Storage)]
-    
-    C -->|Stream HTML Binary to Memory| D(src/ingest_pipeline.py)
-    
-    subgraph "Transformation & Vectorization Strategy"
-        D -->|BeautifulSoup Cleaning| E[Remove bloated scripts/styles]
-        E -->|Markdownify Conversion| F[Extract Tables & Headings to Markdown]
-        F -->|RecursiveCharacterTextSplitter| G[Semantic Chunks 4000 char]
-        G -->|BAAI/bge-small-en-v1.5 Embeddings| H[(Local ChromaDB)]
+flowchart TD
+    %% Define Node Styles
+    classDef cloud fill:#0078D4,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef script fill:#2b3137,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef db fill:#00C7B7,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef llm fill:#4F46E5,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef ui fill:#FF4B4B,stroke:#fff,stroke-width:2px,color:#fff;
+
+    subgraph Data Ingestion & Storage
+        A[SEC EDGAR Database] -->|Fetch 10-K/10-Q| B(edgar_to_azure.py):::script
+        B -->|Sync Raw HTML| C[(Azure Blob Storage)]:::cloud
     end
-    
-    H <-->|Hybrid Search Retriever (Top-10)| I(app.py - Streamlit Frontend)
-    I <-->|LCEL Chains + Prompt Context| J[DeepSeek Chat Engine]
-    J -->|Simulated Streaming Response| K[End User Chat Interface]
+
+    subgraph Vectorization Pipeline
+        C -->|Stream to Memory| D(ingest_pipeline.py):::script
+        D -->|Clean & Extract Tables| E[Markdownify]
+        E -->|Chunk Text| F[BAAI/bge-small Embeddings]
+        F -->|Store Vectors| G[(ChromaDB)]:::db
+    end
+
+    subgraph Inference & UI
+        G -->|Retrieve Top-K| H(app.py / LangChain):::script
+        H <-->|Semantic Search & Prompt| I{DeepSeek LLM}:::llm
+        H -->|Render Output| J[Streamlit Web App]:::ui
+    end
 ```
 
 ## 🛠️ Tech Stack
