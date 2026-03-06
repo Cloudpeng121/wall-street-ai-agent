@@ -1,34 +1,121 @@
-# Wall Street AI Agent
+# 📈 Wall Street AI Agent
 
-A robust Retrieval-Augmented Generation (RAG) system for querying and analyzing SEC financial reports (TSLA & MSFT).
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.32.0-FF4B4B.svg)](https://streamlit.io/)
+[![LangChain](https://img.shields.io/badge/LangChain-Integration-green.svg)](https://python.langchain.com/)
+[![DeepSeek](https://img.shields.io/badge/DeepSeek-Chat_LLM-purple.svg)](https://deepseek.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipeline designed to ingest, process, and interactively query SEC financial reports (10-K, 10-Q) for companies like strictly **TSLA** and **MSFT**.
 
-This project implements a full LLM-based RAG pipeline to answer financial queries based on local SEC documents. It leverages:
-- **LangChain** and **ChromaDB** for document ingestion, chunking, and embedding.
-- **BAAI/bge-small-en-v1.5** via `HuggingFaceEmbeddings` for vector search.
-- **DeepSeek Chat LLM** through `ChatOpenAI` as the core reasoning engine.
-- A **Streamlit** Web Interface (`app.py`) for an interactive, conversational user experience.
-- A fallback CLI Agent (`agent.py`) for quick command-line queries.
-- Modular data ingestion scripts (`ingest_pipeline.py`) to process and handle raw PDFs automatically.
+---
 
-## Quick Start
+## 🚀 Overview
 
-1. Provide your environment variables across a `.env` file at the root:
-```ini
-DEEPSEEK_API_KEY="your-api-key-here"
+The **Wall Street AI Agent** is a full-stack AI system that bridges the gap between raw financial data from the SEC EDGAR database and an interactive LLM reasoning engine. It automates the extraction of dense financial tables and corporate text, structurally converts them to markdown, vectorizes the semantic chunks, and serves the data through an elegant, real-time chat interface powered by the deeply analytical **DeepSeek** model.
+
+## 🏗️ System Architecture
+
+The project employs a robust ETL (Extract, Transform, Load) and Query architecture. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which uses `BeautifulSoup` and `Markdownify` to cleanly extract intricate financial tables from raw HTML, completely preserving the tabular structure before it enters the embedding model.
+
+```mermaid
+graph TD
+    A[SEC EDGAR Database] -->|Download 10-K/10-Q HTML| B(src/edgar_to_azure.py)
+    B -->|Upload Core 'primary-document.html'| C[(Azure Blob Storage)]
+    
+    C -->|Stream HTML Binary to Memory| D(src/ingest_pipeline.py)
+    
+    subgraph "Transformation & Vectorization Strategy"
+        D -->|BeautifulSoup Cleaning| E[Remove bloated scripts/styles]
+        E -->|Markdownify Conversion| F[Extract Tables & Headings to Markdown]
+        F -->|RecursiveCharacterTextSplitter| G[Semantic Chunks 4000 char]
+        G -->|BAAI/bge-small-en-v1.5 Embeddings| H[(Local ChromaDB)]
+    end
+    
+    H <-->|Hybrid Search Retriever (Top-10)| I(app.py - Streamlit Frontend)
+    I <-->|LCEL Chains + Prompt Context| J[DeepSeek Chat Engine]
+    J -->|Simulated Streaming Response| K[End User Chat Interface]
 ```
 
-2. (Optional) Run document ingestion if `chroma_db` is empty:
+## 🛠️ Tech Stack
+
+**Ingestion & Cloud Storage:**
+* `sec-edgar-downloader` (Targeted scraping of core financial docs)
+* `azure-storage-blob` (Cloud Data Lake holding raw HTML)
+
+**Data Processing & Vectorization:**
+* `BeautifulSoup4` + `Markdownify` (HTML parsing and structural preservation)
+* `LangChain` (Document loaders and text splitters)
+* `HuggingFaceEmbeddings` (`BAAI/bge-small-en-v1.5`)
+* `ChromaDB` (Local Vector Database)
+
+**Frontend & Inference Engine:**
+* `Streamlit` (Interactive Web App with Resource Caching)
+* `ChatOpenAI` wrapper targeting the **DeepSeek API** (`deepseek-chat`)
+
+---
+
+## ⚡ Quick Start
+
+### 1. Prerequisites
+Ensure you have Python 3.10+ installed. Clone this repository and navigate to the project root.
+
 ```bash
-python ingest_pipeline.py
+git clone https://github.com/Cloudpeng121/wall-street-ai-agent.git
+cd wall-street-ai-agent
 ```
 
-3. Launch the Streamlit web app:
+### 2. Environment Setup
+Create a virtual environment (optional but recommended) and install dependencies:
+
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Mac/Linux
+
+pip install -r requirements.txt
+```
+
+### 3. Configuration
+Copy the `.env.example` file to create your own local `.env` file containing your secret keys.
+
+```bash
+cp .env.example .env
+```
+Fill in the following variables:
+* `DEEPSEEK_API_KEY`: Your model inference key.
+* `AZURE_STORAGE_CONNECTION_STRING`: Your Azure Blob storage connection string (used during the ingestion phase).
+
+### 4. Running the Pipeline
+
+**Step A: Ingest Data to Azure (Optional)**
+*Extracts documents from SEC EDGAR and uploads core HTML pages to Azure Blob Storage.*
+```bash
+python src/edgar_to_azure.py
+```
+
+**Step B: Build Vector Database (Optional)**
+*Streams HTML docs from Azure, converts to markdown, chunks, and builds the local `chroma_db`.*
+```bash
+python src/ingest_pipeline.py
+```
+
+**Step C: Launch the Web Agent (Main Entrypoint)**
+*Starts the interactive chat interface.*
 ```bash
 python -m streamlit run app.py
 ```
 
-## App Preview
+---
 
-The app features a chat-based UI and simulated streaming responses directly grounded in validated real-world SEC source documentation.
+## 🌟 Key Features
+
+### 1. iXBRL HTML-to-Markdown Parsing Strategy
+Raw SEC financial reports are notoriously messy, filled with thousands of lines of inline styles, scripts, and fragmented XBRL tags. Instead of attempting to use standard PDF OCR or raw text dumps, this pipeline targets the **HTML `primary-document`**.
+By using `BeautifulSoup` to strip the garbage layers and passing the clean DOM tree into `Markdownify`, financial data tables (like Income Statements and Balance Sheets) are flawlessly converted into Markdown tables (`|---|---|---|`). This allows the DeepSeek LLM to mathematically reason over structured rows and columns rather than hallucinating over scrambled raw text.
+
+### 2. Streamlit Resource Caching
+The application UI wraps the heavy `ChromaDB` loading phase, the BGE embedding initialization, and the LangChain pipeline assembly inside a `@st.cache_resource` decorator. The UI re-renders instantly upon user chat interaction without paying the model loading startup tax twice.
+
+### 3. Advanced Inference (DeepSeek)
+Utilizes the high-intelligence `deepseek-chat` model fed by a rigorously restricted system prompt, enforcing that the model relies *strictly* on semantic chunk context. If data is absent, the agent is forced to truthfully admit the lack of information over hallucinating financial figures.
