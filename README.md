@@ -6,7 +6,7 @@
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-Chat_LLM-purple.svg)](https://deepseek.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipeline designed to ingest, process, and interactively query SEC financial reports (10-K, 10-Q) for companies like strictly **TSLA** and **MSFT**.
+An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipeline designed to ingest, process, and interactively query SEC financial reports (10-K, 10-Q) for companies like strictly **TSLA** and **MSFT** **e.g.**.
 
 ---
 
