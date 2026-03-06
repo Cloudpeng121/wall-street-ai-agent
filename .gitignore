@@ -1,0 +1,26 @@
+# Environments
+.env
+
+# ChromaDB vector store
+/chroma_db/
+/chroma.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment (just in case they have one)
+venv/
+env/
+.venv/
+
+# IDE directories
+.vscode/
+.idea/
+
+# Data folders
+/data/
+/sec_data/
+*.pdf
