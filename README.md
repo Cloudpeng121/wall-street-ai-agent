@@ -117,6 +117,14 @@ python -m streamlit run app.py
 
 ---
 
+## 📸 App Preview
+
+![Wall Street AI Agent UI](assets/ui_screenshot.png)
+
+The app features a chat-based UI and simulated streaming responses directly grounded in validated real-world SEC source documentation.
+
+---
+
 ## 🌟 Key Features
 
 ### 1. iXBRL HTML-to-Markdown Parsing Strategy
