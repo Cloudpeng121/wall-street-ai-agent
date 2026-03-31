@@ -14,11 +14,11 @@ An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipel
 
 ## 🚀 Overview
 
-The **Wall Street AI Agent** is a full-stack AI system that bridges the gap between raw financial data from the SEC EDGAR database and an interactive LLM reasoning engine. Transitioning from standalone scripts to a **fully containerized workflow**, it utilizes **Apache Airflow** to orchestrate the ETL pipeline. It automates the extraction of dense financial tables, structurally converts them to markdown, vectorizes the semantic chunks into a local ChromaDB, and serves the data through an elegant, real-time chat interface powered by the highly analytical **DeepSeek** model.
+The **Wall Street AI Agent** is a full-stack AI system that bridges the gap between raw financial data from the SEC EDGAR database and an interactive LLM reasoning engine. Transitioning from standalone scripts to a **fully containerized data engineering workflow**, it utilizes **Apache Airflow** to orchestrate the ETL pipeline. It automates the concurrent extraction of dense financial tables, structurally converts them to Markdown, vectorizes the semantic chunks into a local ChromaDB, and serves the data through an elegant, real-time chat interface powered by the highly analytical **DeepSeek** model.
 
 ## 🏗️ System Architecture
 
-The project employs a robust ETL (Extract, Transform, Load) and Query architecture, isolated and managed within Docker. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which preserves complex tabular structures before they enter the embedding model.
+The project employs a robust ETL (Extract, Transform, Load) and Query architecture, isolated and managed within Docker. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which completely preserves complex tabular structures before they enter the HuggingFace embedding model.
 
 ```mermaid
 flowchart TD
@@ -30,7 +30,7 @@ flowchart TD
     classDef ui fill:#FF4B4B,stroke:#fff,stroke-width:2px,color:#fff;
     classDef airflow fill:#017CEE,stroke:#fff,stroke-width:2px,color:#fff;
 
-    subgraph Apache Airflow Orchestration (Docker)
+    subgraph orchestration ["Apache Airflow Orchestration (Docker)"]
         direction TB
         A[Airflow Scheduler]:::airflow --> B(Task 1: Fetch 10-K/10-Q from EDGAR):::script
         B --> C(Task 2: Clean & Parse HTML-to-Markdown):::script
@@ -38,7 +38,7 @@ flowchart TD
         D --> E[(ChromaDB Local Volume)]:::db
     end
 
-    subgraph Inference & UI
+    subgraph inference ["Inference & UI"]
         E -->|Retrieve Top-K Chunks| F(app.py / LangChain):::script
         F <-->|Context-Aware Prompt| G{DeepSeek LLM}:::llm
         F -->|Render Response| H[Streamlit Web App]:::ui
@@ -47,18 +47,18 @@ flowchart TD
 
 ## 🛠️ Tech Stack
 
-**Ingestion & Cloud Storage:**
-* `sec-edgar-downloader` (Targeted scraping of core financial docs)
-* `azure-storage-blob` (Cloud Data Lake holding raw HTML)
+**Orchestration & Infrastructure:**
+* `Docker` & `Docker Compose` (Containerization & Volume Mapping)
+* `Apache Airflow` (DAG scheduling, dependency management, and monitoring)
 
 **Data Processing & Vectorization:**
 * `BeautifulSoup4` + `Markdownify` (HTML parsing and structural preservation)
-* `LangChain` (Document loaders and text splitters)
-* `HuggingFaceEmbeddings` (`BAAI/bge-small-en-v1.5`)
+* `LangChain` (Document loaders, recursive text splitters, and chain logic)
+* `HuggingFaceEmbeddings` (`BAAI/bge-small-en-v1.5` for local semantic vectorization)
 * `ChromaDB` (Local Vector Database)
 
 **Frontend & Inference Engine:**
-* `Streamlit` (Interactive Web App with Resource Caching)
+* `Streamlit` (Interactive Web App with `@st.cache_resource` memory management)
 * `ChatOpenAI` wrapper targeting the **DeepSeek API** (`deepseek-chat`)
 
 ---
@@ -66,10 +66,10 @@ flowchart TD
 ## ⚡ Quick Start
 
 ### 1. Prerequisites
-Ensure you have Python 3.10+ installed. Clone this repository and navigate to the project root.
+Ensure you have **Docker**, **Docker Compose**, and **Python 3.10+** installed.
 
 ```bash
-git clone https://github.com/Cloudpeng121/wall-street-ai-agent.git
+git clone [https://github.com/Cloudpeng121/wall-street-ai-agent.git](https://github.com/Cloudpeng121/wall-street-ai-agent.git)
 cd wall-street-ai-agent
 ```
 
