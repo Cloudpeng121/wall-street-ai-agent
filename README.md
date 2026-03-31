@@ -1,22 +1,24 @@
 # 📈 Wall Street AI Agent
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](https://www.docker.com/)
+[![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-017CEE?logo=Apache%20Airflow&logoColor=white)](https://airflow.apache.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32.0-FF4B4B.svg)](https://streamlit.io/)
 [![LangChain](https://img.shields.io/badge/LangChain-Integration-green.svg)](https://python.langchain.com/)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-Chat_LLM-purple.svg)](https://deepseek.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipeline designed to ingest, process, and interactively query SEC financial reports (10-K, 10-Q) for companies like strictly **TSLA** and **MSFT** **e.g.**.
+An enterprise-grade, cloud-native **Retrieval-Augmented Generation (RAG)** pipeline designed to ingest, process, and interactively query SEC financial reports (10-K, 10-Q) for major tech equities (e.g., strictly **TSLA** and **MSFT**).
 
 ---
 
 ## 🚀 Overview
 
-The **Wall Street AI Agent** is a full-stack AI system that bridges the gap between raw financial data from the SEC EDGAR database and an interactive LLM reasoning engine. It automates the extraction of dense financial tables and corporate text, structurally converts them to markdown, vectorizes the semantic chunks, and serves the data through an elegant, real-time chat interface powered by the deeply analytical **DeepSeek** model.
+The **Wall Street AI Agent** is a full-stack AI system that bridges the gap between raw financial data from the SEC EDGAR database and an interactive LLM reasoning engine. Transitioning from standalone scripts to a **fully containerized workflow**, it utilizes **Apache Airflow** to orchestrate the ETL pipeline. It automates the extraction of dense financial tables, structurally converts them to markdown, vectorizes the semantic chunks into a local ChromaDB, and serves the data through an elegant, real-time chat interface powered by the highly analytical **DeepSeek** model.
 
 ## 🏗️ System Architecture
 
-The project employs a robust ETL (Extract, Transform, Load) and Query architecture. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which uses `BeautifulSoup` and `Markdownify` to cleanly extract intricate financial tables from raw HTML, completely preserving the tabular structure before it enters the embedding model.
+The project employs a robust ETL (Extract, Transform, Load) and Query architecture, isolated and managed within Docker. A key technical feature is the **iXBRL HTML-to-Markdown parsing strategy**, which preserves complex tabular structures before they enter the embedding model.
 
 ```mermaid
 flowchart TD
@@ -26,23 +28,20 @@ flowchart TD
     classDef db fill:#00C7B7,stroke:#fff,stroke-width:2px,color:#fff;
     classDef llm fill:#4F46E5,stroke:#fff,stroke-width:2px,color:#fff;
     classDef ui fill:#FF4B4B,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef airflow fill:#017CEE,stroke:#fff,stroke-width:2px,color:#fff;
 
-    subgraph Data Ingestion & Storage
-        A[SEC EDGAR Database] -->|Fetch 10-K/10-Q| B(edgar_to_azure.py):::script
-        B -->|Sync Raw HTML| C[(Azure Blob Storage)]:::cloud
-    end
-
-    subgraph Vectorization Pipeline
-        C -->|Stream to Memory| D(ingest_pipeline.py):::script
-        D -->|Clean & Extract Tables| E[Markdownify]
-        E -->|Chunk Text| F[BAAI/bge-small Embeddings]
-        F -->|Store Vectors| G[(ChromaDB)]:::db
+    subgraph Apache Airflow Orchestration (Docker)
+        direction TB
+        A[Airflow Scheduler]:::airflow --> B(Task 1: Fetch 10-K/10-Q from EDGAR):::script
+        B --> C(Task 2: Clean & Parse HTML-to-Markdown):::script
+        C --> D(Task 3: Text Chunking & HuggingFace Embedding):::script
+        D --> E[(ChromaDB Local Volume)]:::db
     end
 
     subgraph Inference & UI
-        G -->|Retrieve Top-K| H(app.py / LangChain):::script
-        H <-->|Semantic Search & Prompt| I{DeepSeek LLM}:::llm
-        H -->|Render Output| J[Streamlit Web App]:::ui
+        E -->|Retrieve Top-K Chunks| F(app.py / LangChain):::script
+        F <-->|Context-Aware Prompt| G{DeepSeek LLM}:::llm
+        F -->|Render Response| H[Streamlit Web App]:::ui
     end
 ```
 
