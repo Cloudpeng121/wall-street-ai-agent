@@ -1,22 +1,41 @@
-# Environments
+# ==========================================
+# 🔐 Environments & Credentials (安全核心)
+# ==========================================
 .env
+*.pem
+*.key
 
-# ChromaDB vector store
-/chroma_db/
-/chroma.sqlite3
+# ==========================================
+# 🗄️ Vector Database & Raw Data (数据与数据库)
+# ==========================================
+chroma_db/
+*.sqlite3
+data/
+sec_data/
+*.pdf
+*.html
+*.htm
 
-# Python cache
+# ==========================================
+# ⚙️ Airflow Specific (调度器生成的缓存与日志)
+# ==========================================
+logs/
+airflow-webserver.pid
+
+# ==========================================
+# 🐍 Python & Environments (Python 环境与缓存)
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-
-# Virtual environment (just in case they have one)
 venv/
 env/
 .venv/
 
-# OS generated files
+# ==========================================
+# 💻 OS & IDE Generated Files (系统与编辑器)
+# ==========================================
 .DS_Store
 .DS_Store?
 ._*
@@ -24,13 +43,5 @@ env/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-
-# IDE directories
 .vscode/
 .idea/
-
-# Data folders
-/data/
-/sec_data/
-*.pdf

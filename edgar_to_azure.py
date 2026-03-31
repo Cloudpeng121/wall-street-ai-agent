@@ -14,7 +14,7 @@ from azure.storage.blob import BlobServiceClient
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-TARGET_TICKERS = ["TSLA", "MSFT"]
+TARGET_TICKERS = ["MSFT", "TSLA", "NVDA", "GOOGL", "META", "AAPL", "AMZN"]
 AMOUNT_TO_DOWNLOAD = 2 
 DOWNLOAD_DIR = Path("./sec_data")
 CONTAINER_NAME = "financial-reports"

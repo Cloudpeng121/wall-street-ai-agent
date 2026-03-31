@@ -172,9 +172,11 @@ def load_rag_chain():
 
     # 3. Prompt  (identical to agent.py)
     prompt = ChatPromptTemplate.from_template(
-        "You are an elite financial analyst. Use ONLY the provided context to answer the question.\n"
-        "If you find figures for specific quarters, periods, or segments that partially answer the question, provide them clearly.\n"
-        "If the data is completely missing from the context, state 'I cannot find this information in the reports.'\n\n"
+        "You are an elite Wall Street financial analyst tracking the Magnificent 7 tech equities.\n"
+        "Use ONLY the provided context to answer the question. \n"
+        "CRITICAL INSTRUCTION: Pay STRICT ATTENTION to the company name in the user's query and the source metadata. "
+        "Do NOT mix up revenue, metrics, or strategies between different companies (e.g., Apple vs. Amazon).\n"
+        "If you cannot find the specific company's data in the context, state 'I cannot find this information for [Company Name] in the reports.'\n\n"
         "Context:\n{context}\n\n"
         "Question: {question}\n\n"
         "Answer:"
@@ -211,11 +213,16 @@ with st.sidebar:
         - ⚡ LangChain LCEL Pipeline
         """
     )
-    st.markdown("---")
-    st.markdown("**Coverage:**")
-    st.markdown("- 🔷 TSLA — Tesla SEC Filings")
-    st.markdown("- 🔶 MSFT — Microsoft SEC Filings")
-    st.markdown("---")
+    st.sidebar.markdown("""
+    **Coverage:**
+    - 🔹 **AAPL** — Apple Inc.
+    - 🔹 **AMZN** — Amazon.com
+    - 🔹 **GOOGL** — Alphabet (Google)
+    - 🔹 **META** — Meta Platforms
+    - 🔹 **MSFT** — Microsoft
+    - 🔹 **NVDA** — NVIDIA Corp.
+    - 🔹 **TSLA** — Tesla Inc.
+    """)
 
     # Metrics row
     col1, col2 = st.columns(2)

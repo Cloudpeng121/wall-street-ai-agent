@@ -7,6 +7,7 @@ cleans the markup, chunks the text, and ingests them into ChromaDB.
 
 import os
 import logging
+import gc
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from markdownify import markdownify
@@ -68,6 +69,10 @@ def stream_and_parse_from_azure(blob_service_client: BlobServiceClient) -> list[
                 metadata={"source": f"azure://{blob.name}"}
             )
             documents.append(doc)
+
+            # 🚨 内存装甲：每处理完一个巨型文件，立刻释放内存
+            del html_content, soup, clean_text 
+            gc.collect()
             
     logger.info(f"Successfully parsed {len(documents)} core reports from Azure.")
     return documents
